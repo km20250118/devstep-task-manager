@@ -33,7 +33,7 @@ export default function LoginPage() {
       </div>
 
       <AuthCard
-        title="おかえりなさい"
+        title="TaskFlowへようこそ"
         subtitle="アカウントにログインしてください"
       >
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
