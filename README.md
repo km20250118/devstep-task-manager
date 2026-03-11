@@ -32,13 +32,14 @@
 ### Stage 1 (Week 2) ✅
 - タスクの作成（タイトル・詳細・期限日）
 - タスクの一覧表示（作成日時の降順）
+- タスクの詳細表示（タイトル・詳細・ステータス・期限日・作成日時・更新日時）
 - タスクの編集
 - タスクの完了・未完了の切り替え
-- タスクの削除
+- タスクの削除（確認ダイアログあり）
 - タスクのフィルタリング（すべて・未完了・完了済み・期限超過）
 - 統計表示（合計・完了数・期限超過数）
 - 入力バリデーション（タイトル100文字以内・詳細500文字以内）
-- ログインユーザーのタスクのみ表示・操作できる
+- ログインユーザーのタスクのみ表示・操作できる（RLS）
 
 ---
 
@@ -49,6 +50,9 @@
 | ログイン画面 | `/login` | 未ログイン時のデフォルト遷移先 |
 | 新規登録画面 | `/signup` | — |
 | タスク一覧画面 | `/tasks` | ログイン後のデフォルト遷移先 |
+| タスク作成画面 | `/tasks/new` | — |
+| タスク詳細画面 | `/tasks/[id]` | — |
+| タスク編集画面 | `/tasks/[id]/edit` | — |
 
 ---
 
@@ -57,7 +61,7 @@
 ### 1. リポジトリをクローン
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/devstep-task-manager.git
+git clone https://github.com/km20250118/devstep-task-manager.git
 cd devstep-task-manager
 ```
 
@@ -186,8 +190,15 @@ devstep-task-manager/
 │   ├── signup/
 │   │   └── page.tsx         # 新規登録画面
 │   ├── tasks/
+│   │   ├── [id]/
+│   │   │   ├── edit/
+│   │   │   │   └── page.tsx # タスク編集画面
+│   │   │   └── page.tsx     # タスク詳細画面
+│   │   ├── new/
+│   │   │   └── page.tsx     # タスク作成画面
 │   │   ├── actions.ts       # タスク Server Actions (CRUD)
-│   │   └── page.tsx         # タスク一覧・管理画面
+│   │   ├── layout.tsx       # タスク画面共通レイアウト
+│   │   └── page.tsx         # タスク一覧画面
 │   ├── globals.css
 │   ├── layout.tsx
 │   └── page.tsx             # ルートリダイレクト
