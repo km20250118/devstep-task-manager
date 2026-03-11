@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useTransition, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getTask, updateTask } from "@/app/tasks/actions";
@@ -8,19 +8,20 @@ import { getTask, updateTask } from "@/app/tasks/actions";
 export default function EditTaskPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = use(params);
   const router = useRouter();
-  const [title,   setTitle]   = useState("");
-  const [detail,  setDetail]  = useState("");
-  const [dueDate, setDueDate] = useState("");
-  const [errors,  setErrors]  = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(true);
+  const [title,    setTitle]   = useState("");
+  const [detail,   setDetail]  = useState("");
+  const [dueDate,  setDueDate] = useState("");
+  const [errors,   setErrors]  = useState<Record<string, string>>({});
+  const [loading,  setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    getTask(params.id).then((res) => {
+    getTask(id).then((res) => {
       if (!res.data) {
         setNotFound(true);
       } else {
@@ -30,7 +31,7 @@ export default function EditTaskPage({
       }
       setLoading(false);
     });
-  }, [params.id]);
+  }, [id]);
 
   const validate = () => {
     const e: Record<string, string> = {};
@@ -46,7 +47,7 @@ export default function EditTaskPage({
     if (Object.keys(err).length) { setErrors(err); return; }
 
     startTransition(async () => {
-      const res = await updateTask(params.id, {
+      const res = await updateTask(id, {
         title:    title.trim(),
         detail:   detail.trim() || null,
         due_date: dueDate || null,
@@ -54,7 +55,7 @@ export default function EditTaskPage({
       if (res.error) {
         setErrors({ submit: res.error });
       } else {
-        router.push(`/tasks/${params.id}`);
+        router.push(`/tasks/${id}`);
       }
     });
   };
@@ -102,7 +103,7 @@ export default function EditTaskPage({
         </Link>
         <span className="text-ink-700">/</span>
         <Link
-          href={`/tasks/${params.id}`}
+          href={`/tasks/${id}`}
           className="text-ember-400 hover:text-ember-300 font-medium"
         >
           詳細
@@ -216,7 +217,7 @@ export default function EditTaskPage({
           {/* Footer */}
           <div className="px-8 py-5 bg-ink-950 border-t border-ink-800 flex gap-2 flex-wrap">
             <Link
-              href={`/tasks/${params.id}`}
+              href={`/tasks/${id}`}
               className="border border-ink-700 text-ink-300 hover:border-ink-500 hover:text-ink-100
                 rounded-md px-5 py-2.5 text-sm font-display font-semibold tracking-wide transition-all"
             >

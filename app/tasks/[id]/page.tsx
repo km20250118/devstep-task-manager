@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useTransition, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getTask, toggleTask, deleteTask } from "@/app/tasks/actions";
@@ -60,20 +60,21 @@ function CheckIcon() {
 export default function TaskDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = use(params);
   const router = useRouter();
-  const [task, setTask]           = useState<Task | null>(null);
-  const [loading, setLoading]     = useState(true);
+  const [task, setTask]             = useState<Task | null>(null);
+  const [loading, setLoading]       = useState(true);
   const [showDelete, setShowDelete] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    getTask(params.id).then((res) => {
+    getTask(id).then((res) => {
       setTask(res.data ?? null);
       setLoading(false);
     });
-  }, [params.id]);
+  }, [id]);
 
   const handleToggle = () => {
     if (!task) return;
@@ -83,7 +84,7 @@ export default function TaskDetailPage({
 
   const handleDelete = () => {
     startTransition(async () => {
-      await deleteTask(params.id);
+      await deleteTask(id);
       router.push("/tasks");
     });
   };
@@ -229,7 +230,7 @@ export default function TaskDetailPage({
             ← 一覧へ戻る
           </Link>
           <Link
-            href={`/tasks/${task.id}/edit`}
+            href={`/tasks/${id}/edit`}
             className="bg-ember-500 hover:bg-ember-400 text-ink-950
               rounded-md px-5 py-2.5 text-sm font-display font-semibold tracking-wide
               transition-all shadow-lg shadow-ember-500/20"
