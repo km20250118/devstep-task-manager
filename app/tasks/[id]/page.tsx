@@ -78,7 +78,7 @@ export default function TaskDetailPage({
   const handleToggle = () => {
     if (!task) return;
     setTask((t) => t ? { ...t, completed: !t.completed } : t);
-    startTransition(() => toggleTask(task.id, !task.completed));
+    startTransition(async () => { await toggleTask(task.id, !task.completed); });
   };
 
   const handleDelete = () => {
