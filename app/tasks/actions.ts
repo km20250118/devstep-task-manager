@@ -9,7 +9,7 @@ type TaskInput = {
   due_date: string | null;
 };
 
-// ─── Read ─────────────────────────────────────────────────────────────────────
+// ─── Read all ─────────────────────────────────────────────────────────────────
 
 export async function getTasks() {
   const supabase = await createClient();
@@ -25,6 +25,23 @@ export async function getTasks() {
   return { data, error: error?.message ?? null };
 }
 
+// ─── Read one ─────────────────────────────────────────────────────────────────
+
+export async function getTask(id: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { data: null, error: "Unauthorized" };
+
+  const { data, error } = await supabase
+    .from("tasks")
+    .select("*")
+    .eq("id", id)
+    .eq("user_id", user.id)   // RLS double-check: 自分のタスクのみ
+    .single();
+
+  return { data: data ?? null, error: error?.message ?? null };
+}
+
 // ─── Create ───────────────────────────────────────────────────────────────────
 
 export async function createTask(input: TaskInput) {
@@ -32,17 +49,20 @@ export async function createTask(input: TaskInput) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { data: null, error: "Unauthorized" };
 
-  if (!input.title.trim())          return { data: null, error: "タイトルは必須です。" };
-  if (input.title.length > 100)     return { data: null, error: "タイトルは100文字以内で入力してください。" };
-  if ((input.detail?.length ?? 0) > 500) return { data: null, error: "詳細は500文字以内で入力してください。" };
+  if (!input.title.trim())
+    return { data: null, error: "タイトルは必須です。" };
+  if (input.title.length > 100)
+    return { data: null, error: "タイトルは100文字以内で入力してください。" };
+  if ((input.detail?.length ?? 0) > 500)
+    return { data: null, error: "詳細は500文字以内で入力してください。" };
 
   const { data, error } = await supabase
     .from("tasks")
     .insert({
-      user_id:  user.id,
-      title:    input.title.trim(),
-      detail:   input.detail?.trim() || null,
-      due_date: input.due_date || null,
+      user_id:   user.id,
+      title:     input.title.trim(),
+      detail:    input.detail?.trim() || null,
+      due_date:  input.due_date || null,
       completed: false,
     })
     .select()
@@ -60,9 +80,12 @@ export async function updateTask(id: string, input: TaskInput) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { data: null, error: "Unauthorized" };
 
-  if (!input.title.trim())          return { data: null, error: "タイトルは必須です。" };
-  if (input.title.length > 100)     return { data: null, error: "タイトルは100文字以内で入力してください。" };
-  if ((input.detail?.length ?? 0) > 500) return { data: null, error: "詳細は500文字以内で入力してください。" };
+  if (!input.title.trim())
+    return { data: null, error: "タイトルは必須です。" };
+  if (input.title.length > 100)
+    return { data: null, error: "タイトルは100文字以内で入力してください。" };
+  if ((input.detail?.length ?? 0) > 500)
+    return { data: null, error: "詳細は500文字以内で入力してください。" };
 
   const { data, error } = await supabase
     .from("tasks")
@@ -73,12 +96,13 @@ export async function updateTask(id: string, input: TaskInput) {
       updated_at: new Date().toISOString(),
     })
     .eq("id", id)
-    .eq("user_id", user.id)   // RLS double-check
+    .eq("user_id", user.id)   // 自分のタスクのみ更新可能
     .select()
     .single();
 
   if (error) return { data: null, error: error.message };
   revalidatePath("/tasks");
+  revalidatePath(`/tasks/${id}`);
   return { data, error: null };
 }
 
@@ -111,7 +135,7 @@ export async function deleteTask(id: string) {
     .from("tasks")
     .delete()
     .eq("id", id)
-    .eq("user_id", user.id);
+    .eq("user_id", user.id);  // 自分のタスクのみ削除可能
 
   if (error) return { error: error.message };
   revalidatePath("/tasks");
