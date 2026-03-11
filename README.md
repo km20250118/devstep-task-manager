@@ -213,7 +213,7 @@ devstep-task-manager/
 │   │   ├── client.ts        # ブラウザ用クライアント
 │   │   └── server.ts        # サーバー用クライアント
 │   └── utils.ts
-├── middleware.ts            # 認証ミドルウェア
+├── proxy.ts            # 認証ミドルウェア
 ├── .env.local.example
 └── README.md
 ```
