@@ -113,12 +113,9 @@ export default function TasksPage() {
           <span className="h-1.5 w-1.5 rounded-full bg-ember-500 animate-pulse" />
           <span className="text-xs font-mono text-ember-400">タスク管理</span>
         </div>
-        <h1 className="font-display text-4xl font-bold text-ink-50 tracking-tight mb-3">
+        <h1 className="font-display text-4xl font-bold text-ink-50 tracking-tight">
           タスク一覧
         </h1>
-        <p className="text-ink-500 font-body">
-          {total} tasks · {done} done
-        </p>
       </div>
 
       {/* Stats */}
